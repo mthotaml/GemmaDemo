@@ -96,9 +96,7 @@ function renderScenarioList() {
 function renderShipment() {
   const shipment = state.selected;
   if (!shipment) return;
-  el.pageTitle.textContent = shipment.location_type === "Unknown"
-    ? "Accessorial Recommendation"
-    : `${shipment.location_type} Accessorial Review`;
+  el.pageTitle.textContent = "Accessorial Recommendation";
   el.shipmentId.textContent = shipment.scenario_id;
   el.eligibilityBadge.textContent = shipment.shipment_mode === "LTL" ? "Eligible LTL" : "Skipped";
   el.eligibilityBadge.className = shipment.shipment_mode === "LTL" ? "badge good" : "badge warn";
