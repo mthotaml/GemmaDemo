@@ -178,19 +178,34 @@ input, select, textarea {
   gap: 10px;
 }
 
-.project-hero {
-  border: 1px solid rgba(23, 105, 170, .22);
+.gemma-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  overflow: hidden;
-  background: #0d1720;
-  box-shadow: 0 14px 42px rgba(14, 30, 47, .16);
+  padding: 12px 14px;
+  background: #fff;
 }
 
-.project-hero img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
+.gemma-band p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.gemma-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border-radius: 999px;
+  padding: 0 12px;
+  color: #14543b;
+  background: #dcf2e4;
+  font-size: 13px;
+  font-weight: 850;
+  white-space: nowrap;
 }
 
 .primary, .secondary {
@@ -451,5 +466,6 @@ th, td {
 @media (max-width: 720px) {
   .workspace, .sidebar { padding: 18px; }
   .topbar { flex-direction: column; align-items: stretch; }
+  .gemma-band { align-items: flex-start; flex-direction: column; }
   .top-actions, .check-grid, .form-grid, .metric-grid, .eval-grid, .status-strip { grid-template-columns: 1fr; display: grid; }
 }
