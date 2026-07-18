@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FreightPOP Edge AI Accessorial Agent</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-lockup">
+          <div class="brand-mark">FP</div>
+          <div>
+            <p>FreightPOP</p>
+            <h1>Edge AI Agent</h1>
+          </div>
+        </div>
+
+        <section class="control-panel">
+          <div class="control-row">
+            <span>Agent enabled</span>
+            <label class="switch">
+              <input id="agentEnabled" type="checkbox" checked />
+              <span></span>
+            </label>
+          </div>
+          <div class="control-row">
+            <span>Use local Gemma</span>
+            <label class="switch">
+              <input id="useGemma" type="checkbox" checked />
+              <span></span>
+            </label>
+          </div>
+          <label class="field-label" for="modelName">Ollama model</label>
+          <input id="modelName" value="gemma4:latest" />
+          <button id="checkGemmaBtn" class="secondary dark">Check Gemma</button>
+          <p id="gemmaStatus" class="status-copy">Checking local Ollama...</p>
+        </section>
+
+        <section>
+          <label class="field-label" for="scenarioSearch">Search demo shipments</label>
+          <input id="scenarioSearch" type="search" placeholder="Hospital, liftgate, LTL..." />
+          <div id="scenarioList" class="scenario-list"></div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Offline-first POC · SQLite · Ollama Gemma</p>
+            <h2 id="pageTitle">Accessorial Recommendation</h2>
+          </div>
+          <div class="top-actions">
+            <button id="runBtn" class="primary">Run Agent</button>
+            <button id="evaluateBtn" class="secondary">Evaluate Dataset</button>
+          </div>
+        </header>
+
+        <section class="status-strip">
+          <div><span class="dot input"></span> Shipment input</div>
+          <div><span class="dot guardrail"></span> Guardrails</div>
+          <div><span class="dot rules"></span> Rules engine</div>
+          <div><span class="dot gemma"></span> Local Gemma</div>
+          <div><span class="dot storage"></span> SQLite log</div>
+        </section>
+
+        <section class="grid two">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <span class="panel-label">Shipment inputs</span>
+                <h3 id="shipmentId">Loading...</h3>
+              </div>
+              <span id="eligibilityBadge" class="badge neutral">Pending</span>
+            </div>
+
+            <div class="form-grid">
+              <label>Mode<select id="shipment_mode"></select></label>
+              <label>Package<select id="package_type"></select></label>
+              <label>Pieces<input id="pieces" type="number" min="1" /></label>
+              <label>Weight lb<input id="weight_lb" type="number" min="1" /></label>
+              <label>Location<select id="location_type"></select></label>
+              <label>Company<input id="company_name" /></label>
+              <label class="wide">Origin<input id="origin_address" /></label>
+              <label class="wide">Destination<input id="destination_address" /></label>
+            </div>
+
+            <div class="check-grid">
+              <label><input id="loading_dock_available" type="checkbox" /> Loading dock available</label>
+              <label><input id="forklift_available" type="checkbox" /> Forklift available</label>
+            </div>
+
+            <label class="notes">Delivery notes<textarea id="notes" rows="6"></textarea></label>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <span class="panel-label">Recommendation response</span>
+                <h3 id="responseStatus">Not run</h3>
+              </div>
+              <span id="latencyBadge" class="badge neutral">0 ms</span>
+            </div>
+            <div class="metric-grid">
+              <div><span>Metadata</span><strong id="metadataMetric">0%</strong></div>
+              <div><span>Gemma</span><strong id="gemmaMetric">Unknown</strong></div>
+              <div><span>Mode</span><strong id="modeMetric">Rules</strong></div>
+            </div>
+            <div id="guardrailBox" class="guardrail-box">Run the agent to see eligibility, fallback, and rollout guardrails.</div>
+            <div id="recommendations" class="recommendations"></div>
+          </article>
+        </section>
+
+        <section class="grid two lower">
+          <article class="panel">
+            <div class="panel-heading compact">
+              <h3>Offline Evaluation</h3>
+              <span id="evalThreshold" class="badge neutral">Threshold 70%</span>
+            </div>
+            <div id="evaluation" class="evaluation">Run evaluation to compare deterministic predictions with demo ground truth.</div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading compact">
+              <h3>Local Audit Log</h3>
+              <button id="refreshAuditBtn" class="secondary small">Refresh</button>
+            </div>
+            <div id="auditLog" class="audit-log"></div>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
