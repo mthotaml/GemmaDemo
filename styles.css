@@ -177,6 +177,22 @@ input, select, textarea {
   flex-wrap: wrap;
   gap: 10px;
 }
+
+.project-hero {
+  border: 1px solid rgba(23, 105, 170, .22);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0d1720;
+  box-shadow: 0 14px 42px rgba(14, 30, 47, .16);
+}
+
+.project-hero img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
 .primary, .secondary {
   min-height: 42px;
   border: 1px solid var(--line);
