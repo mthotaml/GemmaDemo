@@ -6,6 +6,8 @@ Full Kaggle-style writeup: [KAGGLE_WRITEUP.md](./KAGGLE_WRITEUP.md)
 
 Demo video: [Loom walkthrough](https://www.loom.com/share/b18e3f409c4941c68ad3586dbdcbd0a5)
 
+QA demo video: [Loom QA walkthrough](https://www.loom.com/share/4ffcf9c919d2435db5206c605c47d9be)
+
 QA checklist: [QA_CHECKLIST.md](./QA_CHECKLIST.md)
 
 ## What It Demonstrates
@@ -65,5 +67,6 @@ freightpop_edge_agent.sqlite
 ## Reviewer Links
 
 - Demo video: [https://www.loom.com/share/b18e3f409c4941c68ad3586dbdcbd0a5](https://www.loom.com/share/b18e3f409c4941c68ad3586dbdcbd0a5)
+- QA demo video: [https://www.loom.com/share/4ffcf9c919d2435db5206c605c47d9be](https://www.loom.com/share/4ffcf9c919d2435db5206c605c47d9be)
 - QA checklist: [QA_CHECKLIST.md](./QA_CHECKLIST.md)
 - Kaggle writeup: [KAGGLE_WRITEUP.md](./KAGGLE_WRITEUP.md)
