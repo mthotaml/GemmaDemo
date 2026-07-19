@@ -4,6 +4,10 @@ An offline-first logistics assistant that uses deterministic rules plus local Ge
 
 Full Kaggle-style writeup: [KAGGLE_WRITEUP.md](./KAGGLE_WRITEUP.md)
 
+Demo video: [Loom walkthrough](https://www.loom.com/share/b18e3f409c4941c68ad3586dbdcbd0a5)
+
+QA checklist: [QA_CHECKLIST.md](./QA_CHECKLIST.md)
+
 ## What It Demonstrates
 
 - Offline-first edge app
@@ -57,3 +61,9 @@ The SQLite file is created at:
 ```text
 freightpop_edge_agent.sqlite
 ```
+
+## Reviewer Links
+
+- Demo video: [https://www.loom.com/share/b18e3f409c4941c68ad3586dbdcbd0a5](https://www.loom.com/share/b18e3f409c4941c68ad3586dbdcbd0a5)
+- QA checklist: [QA_CHECKLIST.md](./QA_CHECKLIST.md)
+- Kaggle writeup: [KAGGLE_WRITEUP.md](./KAGGLE_WRITEUP.md)

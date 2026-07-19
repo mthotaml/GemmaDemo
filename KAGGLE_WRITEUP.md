@@ -120,6 +120,10 @@ Decision is written to local SQLite audit log
 
 ## Demo Walkthrough
 
+Demo video: [Loom walkthrough](https://www.loom.com/share/b18e3f409c4941c68ad3586dbdcbd0a5)
+
+QA checklist: [QA_CHECKLIST.md](./QA_CHECKLIST.md)
+
 1. Start the app:
 
    ```bash
