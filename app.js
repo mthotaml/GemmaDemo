@@ -71,9 +71,42 @@ function percent(value) {
 
 function explainScore(rec, payload) {
   if (payload.gemma_status === "connected" && rec.gemma_semantic_score !== null && rec.gemma_semantic_score !== undefined) {
-    return `Final score blends Gemma semantic confidence (${percent(rec.gemma_semantic_score)}), deterministic rule score (${percent(rec.rule_score)}), supporting evidence, and conflict penalties.`;
+    return `Final score blends Gemma semantic confidence (${percent(rec.gemma_semantic_score)}), deterministic rule score (${percent(rec.rule_score)}), rule evidence strength, and rule conflict penalties.`;
   }
   return `Final score comes from deterministic business rules because Gemma status is ${payload.gemma_status || "unknown"}.`;
+}
+
+function renderGemmaExplanation(rec) {
+  if (!rec.gemma_explanation) {
+    return `
+      <div class="gemma-explain muted">
+        <span>Gemma score explanation</span>
+        <p>Gemma was not invoked for this accessorial, so no model rationale is available.</p>
+      </div>
+    `;
+  }
+  const supporting = rec.gemma_explanation.supporting_evidence?.length
+    ? rec.gemma_explanation.supporting_evidence.map((item) => `<li>${item}</li>`).join("")
+    : "<li>Gemma did not return supporting evidence.</li>";
+  const contradicting = rec.gemma_explanation.contradicting_evidence?.length
+    ? rec.gemma_explanation.contradicting_evidence.map((item) => `<li>${item}</li>`).join("")
+    : "<li>Gemma did not identify contradicting evidence.</li>";
+  return `
+    <div class="gemma-explain">
+      <span>Gemma score explanation</span>
+      <p>${rec.gemma_explanation.rationale || "Gemma returned a score but no rationale."}</p>
+      <div class="explain-columns">
+        <div>
+          <span>Gemma supporting signals</span>
+          <ul>${supporting}</ul>
+        </div>
+        <div>
+          <span>Gemma contradicting signals</span>
+          <ul>${contradicting}</ul>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function badgeClass(status) {
@@ -181,6 +214,7 @@ function renderPayload(payload) {
         <details class="explainability" open>
           <summary>Why this recommendation?</summary>
           <p>${explainScore(rec, payload)}</p>
+          ${renderGemmaExplanation(rec)}
           <div class="explain-grid">
             <div>
               <span>Inputs</span>

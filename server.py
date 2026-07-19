@@ -239,17 +239,32 @@ def rule_scores(shipment: Dict) -> Dict[str, Dict]:
     return output
 
 
-def call_local_gemma(shipment: Dict, model_name: str) -> Tuple[Dict[str, float], str]:
+def call_local_gemma(shipment: Dict, model_name: str) -> Tuple[Dict[str, Dict], str]:
     prompt = {
-        "task": "Score each approved freight accessorial from 0.0 to 1.0.",
+        "task": "Explain and score each approved freight accessorial from 0.0 to 1.0.",
         "approved_accessorials": APPROVED_ACCESSORIALS,
         "shipment": shipment,
         "instructions": [
             "Return JSON only.",
             "Do not invent accessorial names.",
             "Use shipment fields and notes as evidence.",
-            "Return an object named scores whose keys are approved accessorial names and values are 0.0 to 1.0.",
+            "Return an object named accessorial_analysis.",
+            "Each key in accessorial_analysis must be an approved accessorial name.",
+            "Each value must include score, rationale, supporting_evidence, and contradicting_evidence.",
+            "score must be a number from 0.0 to 1.0.",
+            "rationale must be one concise sentence explaining why Gemma assigned that score.",
+            "supporting_evidence and contradicting_evidence must be arrays of short strings copied or inferred from shipment fields.",
         ],
+        "example_response_shape": {
+            "accessorial_analysis": {
+                "Liftgate Delivery": {
+                    "score": 0.92,
+                    "rationale": "No dock, no forklift, and palletized freight indicate liftgate need.",
+                    "supporting_evidence": ["No loading dock", "No forklift"],
+                    "contradicting_evidence": []
+                }
+            }
+        },
     }
     payload = json.dumps({
         "model": model_name,
@@ -267,8 +282,27 @@ def call_local_gemma(shipment: Dict, model_name: str) -> Tuple[Dict[str, float],
     with urllib.request.urlopen(req, timeout=25) as response:
         raw = json.loads(response.read().decode("utf-8"))
     parsed = json.loads(raw.get("response", "{}"))
-    scores = parsed.get("scores", {})
-    clean = {name: clamp(float(scores.get(name, 0.0))) for name in APPROVED_ACCESSORIALS}
+    analysis = parsed.get("accessorial_analysis", {})
+    legacy_scores = parsed.get("scores", {})
+    clean = {}
+    for name in APPROVED_ACCESSORIALS:
+        item = analysis.get(name, {})
+        if isinstance(item, dict):
+            score = item.get("score", legacy_scores.get(name, 0.0))
+            rationale = str(item.get("rationale", "")).strip()
+            supporting = item.get("supporting_evidence", [])
+            contradicting = item.get("contradicting_evidence", [])
+        else:
+            score = legacy_scores.get(name, item if item else 0.0)
+            rationale = ""
+            supporting = []
+            contradicting = []
+        clean[name] = {
+            "score": clamp(float(score or 0.0)),
+            "rationale": rationale or "Gemma returned a semantic score without a rationale.",
+            "supporting_evidence": [str(value) for value in supporting if str(value).strip()],
+            "contradicting_evidence": [str(value) for value in contradicting if str(value).strip()],
+        }
     return clean, f"Local Gemma response blended with deterministic rules using {model_name}."
 
 
@@ -300,13 +334,13 @@ def build_recommendations(shipment: Dict, use_gemma: bool, model_name: str) -> T
         }
 
     rules = rule_scores(shipment)
-    gemma_scores = {}
+    gemma_analysis = {}
     gemma_status = "disabled"
     gemma_note = "Rules-only mode."
 
     if use_gemma:
         try:
-            gemma_scores, gemma_note = call_local_gemma(shipment, model_name)
+            gemma_analysis, gemma_note = call_local_gemma(shipment, model_name)
             gemma_status = "connected"
         except Exception as exc:
             gemma_status = "fallback"
@@ -318,8 +352,15 @@ def build_recommendations(shipment: Dict, use_gemma: bool, model_name: str) -> T
         item = rules[accessorial]
         rule_score = item["rule_score"]
         semantic_score = None
+        gemma_explanation = None
         if gemma_status == "connected":
-            semantic_score = gemma_scores.get(accessorial, rule_score)
+            gemma_item = gemma_analysis.get(accessorial, {})
+            semantic_score = gemma_item.get("score", rule_score)
+            gemma_explanation = {
+                "rationale": gemma_item.get("rationale", ""),
+                "supporting_evidence": gemma_item.get("supporting_evidence", []),
+                "contradicting_evidence": gemma_item.get("contradicting_evidence", []),
+            }
             evidence_strength = min(1.0, 0.35 + 0.16 * len(item["evidence"]))
             conflict_penalty = min(0.30, 0.10 * len(item["conflicts"]))
             final_score = clamp(
@@ -346,6 +387,7 @@ def build_recommendations(shipment: Dict, use_gemma: bool, model_name: str) -> T
             "confidence": final_score,
             "rule_score": rule_score,
             "gemma_semantic_score": semantic_score,
+            "gemma_explanation": gemma_explanation,
             "explanation": item["explanation"],
             "evidence": item["evidence"],
             "contradicting_evidence": item["conflicts"],
