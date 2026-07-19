@@ -407,6 +407,68 @@ input, select, textarea {
   font-size: 13px;
   line-height: 1.4;
 }
+.explainability {
+  margin-top: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fbfcfe;
+}
+.explainability summary {
+  color: #1f4f73;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+}
+.explainability p {
+  margin: 9px 0 10px;
+  color: #3e4855;
+  font-size: 13px;
+}
+.explain-grid,
+.explain-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.explain-grid div,
+.explain-columns div {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+}
+.explain-grid span,
+.explain-columns span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.explain-grid strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 14px;
+}
+.explain-grid em {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+}
+.explain-columns {
+  margin-top: 10px;
+}
+.explain-columns ul {
+  margin: 7px 0 0;
+  padding-left: 18px;
+  color: #3e4855;
+  font-size: 12px;
+  line-height: 1.4;
+}
 .evaluation {
   line-height: 1.5;
 }
@@ -467,5 +529,6 @@ th, td {
   .workspace, .sidebar { padding: 18px; }
   .topbar { flex-direction: column; align-items: stretch; }
   .gemma-band { align-items: flex-start; flex-direction: column; }
+  .explain-grid, .explain-columns { grid-template-columns: 1fr; }
   .top-actions, .check-grid, .form-grid, .metric-grid, .eval-grid, .status-strip { grid-template-columns: 1fr; display: grid; }
 }

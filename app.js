@@ -69,6 +69,13 @@ function percent(value) {
   return `${Math.round((Number(value) || 0) * 100)}%`;
 }
 
+function explainScore(rec, payload) {
+  if (payload.gemma_status === "connected" && rec.gemma_semantic_score !== null && rec.gemma_semantic_score !== undefined) {
+    return `Final score blends Gemma semantic confidence (${percent(rec.gemma_semantic_score)}), deterministic rule score (${percent(rec.rule_score)}), supporting evidence, and conflict penalties.`;
+  }
+  return `Final score comes from deterministic business rules because Gemma status is ${payload.gemma_status || "unknown"}.`;
+}
+
 function badgeClass(status) {
   if (["completed", "connected"].includes(status)) return "badge good";
   if (["fallback", "skipped", "abstained", "disabled"].includes(status)) return "badge warn";
@@ -152,6 +159,12 @@ function renderPayload(payload) {
     const gemma = rec.gemma_semantic_score === null || rec.gemma_semantic_score === undefined
       ? "Gemma score: not used"
       : `Gemma score: ${percent(rec.gemma_semantic_score)}`;
+    const evidence = rec.evidence?.length
+      ? rec.evidence.map((item) => `<li>${item}</li>`).join("")
+      : "<li>No supporting evidence found.</li>";
+    const conflicts = rec.contradicting_evidence?.length
+      ? rec.contradicting_evidence.map((item) => `<li>${item}</li>`).join("")
+      : "<li>No contradicting evidence found.</li>";
     return `
       <article class="rec-card">
         <div class="rec-head">
@@ -165,6 +178,32 @@ function renderPayload(payload) {
           Evidence: ${(rec.evidence || []).join(" ") || "No supporting evidence."}
           ${(rec.contradicting_evidence || []).length ? `<br />Contradicting evidence: ${rec.contradicting_evidence.join(" ")}` : ""}
         </div>
+        <details class="explainability" open>
+          <summary>Why this recommendation?</summary>
+          <p>${explainScore(rec, payload)}</p>
+          <div class="explain-grid">
+            <div>
+              <span>Inputs</span>
+              <strong>Rules ${percent(rec.rule_score)}</strong>
+              <em>${gemma}</em>
+            </div>
+            <div>
+              <span>Decision</span>
+              <strong>${rec.action}</strong>
+              <em>${rec.rollout_action}</em>
+            </div>
+          </div>
+          <div class="explain-columns">
+            <div>
+              <span>Supporting evidence</span>
+              <ul>${evidence}</ul>
+            </div>
+            <div>
+              <span>Contradicting evidence</span>
+              <ul>${conflicts}</ul>
+            </div>
+          </div>
+        </details>
       </article>
     `;
   }).join("");
