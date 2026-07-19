@@ -16,6 +16,7 @@ QA checklist: [QA_CHECKLIST.md](./QA_CHECKLIST.md)
 - SQLite-backed local shipment/audit database
 - Deterministic accessorial rules
 - Local Gemma 4 inference through Ollama
+- Gemma-generated score rationale and evidence per accessorial
 - Approved accessorial whitelist only
 - LTL eligibility guardrail
 - Metadata completeness guardrail
@@ -44,7 +45,14 @@ Confirmed available in this environment:
 
 If Ollama or Gemma is unavailable, the app falls back to deterministic rules.
 
-Gemma is used as a semantic scoring layer for delivery notes and shipment context. The final score blends Gemma's output with deterministic rules, evidence strength, and conflict penalties while restricting output to approved accessorials.
+Gemma is used as a semantic scoring and explainability layer for delivery notes and shipment context. For each approved accessorial, Gemma returns:
+
+- Semantic score
+- One-sentence rationale for that score
+- Supporting evidence from the shipment
+- Contradicting evidence when present
+
+The final score blends Gemma's semantic score with deterministic rules, evidence strength, and conflict penalties while restricting output to approved accessorials.
 
 ## Run
 

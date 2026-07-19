@@ -52,7 +52,24 @@ The app should list available Gemma models and show that the requested model is 
    - Mode: `Rules + Gemma`
    - Recommendations render for approved accessorials only
    - Evidence and explanations are shown
+   - Each recommendation shows **Why this recommendation?**
+   - Each Gemma-enabled recommendation shows **Gemma score explanation**
+   - Gemma explanation includes a rationale plus supporting and contradicting signals
    - SQLite audit log receives a new entry
+
+## Gemma Explainability
+
+1. Select `HOSP-001`.
+2. Keep **Use local Gemma** on.
+3. Click **Run Agent**.
+4. Expand or review the open **Why this recommendation?** section for `Liftgate Delivery`.
+5. Expected result:
+
+   - Gemma semantic score is shown.
+   - Gemma rationale is shown.
+   - Supporting signals include shipment facts such as no dock, no forklift, palletized freight, or delivery-note language.
+   - Contradicting signals are shown when Gemma identifies them.
+   - Deterministic rule evidence remains separate from Gemma's model rationale.
 
 ## Guardrail Tests
 

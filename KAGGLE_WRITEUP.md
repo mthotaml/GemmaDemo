@@ -6,7 +6,7 @@ The FreightPOP Edge AI Accessorial Recommendation Agent is an offline-first logi
 
 Accessorials such as liftgate delivery, inside delivery, limited access delivery, residential delivery, and appointment-required service are often missed during shipment creation. These misses can lead to carrier rebills, invoice disputes, delivery delays, failed delivery attempts, and lost revenue.
 
-This prototype uses Gemma 4 running locally through Ollama, blended with deterministic business rules, to recommend approved accessorials from shipment metadata and free-text delivery notes. It is designed for edge environments where internet access may be limited or unavailable, such as hospitals, ports, mines, military bases, construction sites, oil-rig supply bases, and remote warehouses.
+This prototype uses Gemma 4 running locally through Ollama, blended with deterministic business rules, to recommend approved accessorials from shipment metadata and free-text delivery notes. Gemma now also returns the rationale and evidence behind each semantic score, so the dispatcher can see why the local model scored an accessorial as likely or unlikely. The app is designed for edge environments where internet access may be limited or unavailable, such as hospitals, ports, mines, military bases, construction sites, oil-rig supply bases, and remote warehouses.
 
 ## Problem
 
@@ -52,6 +52,8 @@ For each accessorial, the app returns:
 - Supporting evidence
 - Contradicting evidence
 - Gemma semantic score when local Gemma is enabled
+- Gemma rationale for each semantic score
+- Gemma supporting and contradicting signals
 - Deterministic rule score
 
 The prototype includes a kill switch and fallback behavior. If Gemma or Ollama is unavailable, dispatchers can continue using deterministic recommendations or proceed manually.
@@ -66,7 +68,7 @@ Gemma 4 is useful here because shipment notes are often semantic rather than nea
 - "Mixed-use residential and commercial building"
 - "Use the freight elevator"
 
-The app uses Gemma as an offline semantic scoring layer. Gemma scores each approved accessorial from `0.0` to `1.0` using only the shipment fields and notes. The application then blends Gemma's semantic score with deterministic business rules, evidence strength, and conflict penalties.
+The app uses Gemma as an offline semantic scoring and explainability layer. Gemma scores each approved accessorial from `0.0` to `1.0` using only the shipment fields and notes. For every score, Gemma also returns a concise rationale, supporting evidence, and contradicting evidence. The application then blends Gemma's semantic score with deterministic business rules, evidence strength, and conflict penalties.
 
 This keeps the model core to the recommendation while still enforcing operational guardrails:
 
@@ -75,6 +77,7 @@ This keeps the model core to the recommendation while still enforcing operationa
 - Deterministic rules remain available if local inference fails.
 - Human review is required below the auto-apply threshold.
 - The app runs without a cloud LLM or external API.
+- Gemma's rationale is displayed separately from the deterministic rule explanation so operators can distinguish model reasoning from rule-based evidence.
 
 ## Architecture
 
@@ -106,13 +109,13 @@ Eligibility and metadata guardrails run
 Rules engine scores approved accessorials
         |
         v
-Optional local Gemma semantic scoring runs
+Optional local Gemma semantic scoring and rationale generation runs
         |
         v
-Scores are blended with evidence and conflict penalties
+Gemma score is blended with rules, evidence, and conflict penalties
         |
         v
-Recommendations, explanations, and rollout actions are shown
+Recommendations, Gemma rationale, rule evidence, and rollout actions are shown
         |
         v
 Decision is written to local SQLite audit log
@@ -150,7 +153,7 @@ QA checklist: [QA_CHECKLIST.md](./QA_CHECKLIST.md)
 
 5. Click **Run Agent**.
 
-6. Review the recommended accessorials, confidence scores, explanations, evidence, and rollout action.
+6. Review the recommended accessorials, confidence scores, Gemma score rationale, rule explanation, evidence, and rollout action.
 
 7. Run **Evaluate Dataset** to compare rules-only predictions against ground truth.
 
@@ -177,6 +180,14 @@ The recommendation is explainable because the UI shows the evidence behind each 
 - Shipment weight is 1,200 lb.
 - Notes indicate delivery beyond the curb or loading area.
 - Notes or facility signals require coordination before arrival.
+
+When Gemma is enabled, the UI also shows a dedicated **Gemma score explanation** section. For example, Gemma may explain a Liftgate Delivery score with a rationale such as:
+
+```text
+The absence of a loading dock and forklift necessitates the use of a liftgate for unloading.
+```
+
+It then lists the model's supporting signals, such as `No loading dock`, `No forklift`, and `Pallet`, separately from the deterministic rule evidence.
 
 ## Evaluation
 
@@ -231,6 +242,7 @@ This makes the prototype relevant for locations with intermittent or restricted 
 The app includes operational controls that matter in logistics:
 
 - **Approved list only:** the model cannot display unsupported accessorial names.
+- **Gemma explainability:** Gemma must return a score rationale plus supporting and contradicting evidence for approved accessorials.
 - **LTL eligibility:** the recommendation engine only runs for eligible LTL shipments.
 - **Metadata completeness:** incomplete shipments abstain instead of producing overconfident output.
 - **Kill switch:** operators can disable the agent immediately.
@@ -281,7 +293,7 @@ Next steps would include:
 
 ### Gemma Integration
 
-Gemma 4 is used as a local semantic scoring engine through Ollama. It evaluates shipment notes and metadata, returns approved accessorial scores, and is blended into the final confidence calculation.
+Gemma 4 is used as a local semantic scoring and explainability engine through Ollama. It evaluates shipment notes and metadata, returns approved accessorial scores, explains why each score was assigned, and provides supporting or contradicting signals. The Gemma score is then blended into the final confidence calculation with deterministic guardrails.
 
 ### Innovation and Impact
 
@@ -289,7 +301,7 @@ The app addresses a real logistics problem: missed accessorials cause rebills, d
 
 ### Functionality
 
-The prototype runs locally, loads demo shipments, checks Gemma availability, produces recommendations, shows explanations and evidence, logs decisions to SQLite, and evaluates against ground truth.
+The prototype runs locally, loads demo shipments, checks Gemma availability, produces recommendations, shows Gemma-specific rationale plus rule evidence, logs decisions to SQLite, and evaluates against ground truth.
 
 ### Presentation and Writeup
 
